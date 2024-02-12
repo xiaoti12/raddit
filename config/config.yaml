@@ -1,0 +1,26 @@
+name: "raddit"
+port: 8898
+mode: "dev"
+version: "0.1"
+
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  username: root
+  password: root
+  dbname: raddit
+  max_open_conns: 20
+  max_idle_conns: 10
+
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  password: ""
+  db: 1
+
+log:
+  level: "debug"
+  filename: "logs/output.log"
+  max_size: 10
+  max_age: 7
+
