@@ -8,6 +8,7 @@ import (
 	"raddit/dao/mysql"
 	"raddit/dao/redisdb"
 	"raddit/logger"
+	"raddit/pkg/snowflake"
 	"raddit/routes"
 )
 
@@ -30,6 +31,11 @@ func main() {
 	}
 	// 3. init logger
 	logger.Init(config.Conf.LogConfig)
+	// init snowflake user id generator
+	err = snowflake.Init(config.Conf.StartTime, config.Conf.MachineID)
+	if err != nil {
+		panic(err)
+	}
 	// 4. setup router engine
 	r := routes.SetRouteEngine()
 	// 5. start service

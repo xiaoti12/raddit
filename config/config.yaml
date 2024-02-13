@@ -2,6 +2,8 @@ name: "raddit"
 port: 8898
 mode: "dev"
 version: "0.1"
+start_time: "2024-01-01"
+machine_id: 1
 
 mysql:
   host: "127.0.0.1"

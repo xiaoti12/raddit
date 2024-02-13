@@ -7,15 +7,16 @@ import (
 
 var node *snowflake.Node
 
-func Init(startTime string, machineID int) {
+func Init(startTime string, machineID int) error {
 	var stime time.Time
-	stime, err := time.Parse("2000-01-01", startTime)
+	// 这里需要正确设置layout的值，似乎有一定限制
+	stime, err := time.Parse("2006-01-02", startTime)
 	if err != nil {
-		return
+		return err
 	}
 	snowflake.Epoch = stime.UnixNano() / 1000000
 	node, err = snowflake.NewNode(int64(machineID))
-	return
+	return nil
 }
 func GenID() int64 {
 	return node.Generate().Int64()
