@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"raddit/controller"
@@ -8,6 +9,10 @@ import (
 )
 
 func SetRouteEngine() *gin.Engine {
+	err := controller.CustomValidator()
+	if err != nil {
+		fmt.Println(err)
+	}
 	r := gin.New()
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
