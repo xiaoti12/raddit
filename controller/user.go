@@ -31,8 +31,15 @@ func RegisterHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"msg": err.Error(),
 		})
+		return
 	}
-	service.Register()
+	err = service.Register(&params)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"msg": "register success",
 	})

@@ -51,7 +51,7 @@ type MySQLConfig struct {
 	Port         int    `mapstructure:"port"`
 	User         string `mapstructure:"username"`
 	Password     string `mapstructure:"password"`
-	DBName       string `mapstructure:"db"`
+	DBName       string `mapstructure:"dbname"`
 	MaxOpenConns int    `mapstructure:"max_open_conns"`
 	MaxIdleConns int    `mapstructure:"max_idle_conns"`
 }
