@@ -25,5 +25,7 @@ func SetRouteEngine(mode string) *gin.Engine {
 
 	r.POST("/register", controller.RegisterHandler)
 
+	r.POST("/login", controller.LoginHandler)
+
 	return r
 }

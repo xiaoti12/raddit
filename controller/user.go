@@ -19,7 +19,7 @@ func RegisterHandler(c *gin.Context) {
 	var params models.RegisterParams
 	err := c.ShouldBindJSON(&params)
 	if err != nil {
-		zap.L().Error("invalid params", zap.Error(err))
+		zap.L().Error("invalid register params", zap.Error(err))
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
 			c.JSON(http.StatusOK, gin.H{
@@ -46,6 +46,37 @@ func RegisterHandler(c *gin.Context) {
 		"msg": "register success",
 	})
 
+}
+
+func LoginHandler(c *gin.Context) {
+	var params models.LoginParams
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		zap.L().Error("invalid login params", zap.Error(err))
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			c.JSON(http.StatusOK, gin.H{
+				"msg": editValidatorError(err.Error()),
+			})
+			return
+		}
+		// not a params validator error
+		c.JSON(http.StatusOK, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	err = service.Login(&params)
+	if err != nil {
+		zap.L().Error("login error", zap.Error(err))
+		c.JSON(http.StatusOK, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"msg": "login success",
+	})
 }
 
 func CustomValidator() error {

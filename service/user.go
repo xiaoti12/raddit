@@ -26,3 +26,21 @@ func Register(p *models.RegisterParams) error {
 	}
 	return nil
 }
+
+func Login(p *models.LoginParams) error {
+	// check if user exsits
+	err := mysql.CheckUserNotExsits(p.Username)
+	if err != nil {
+		return err
+	}
+	// check if password is correct
+	user := &models.User{
+		Username: p.Username,
+		Password: p.Password,
+	}
+	err = mysql.CheckUserLogin(user)
+	if err != nil {
+		return err
+	}
+	return nil
+}
