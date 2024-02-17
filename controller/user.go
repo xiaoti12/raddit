@@ -40,7 +40,7 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 	zap.L().Info("register success", zap.String("username", params.Username))
-	RespondSuccess(c)
+	RespondSuccess(c, nil)
 }
 
 func LoginHandler(c *gin.Context) {
@@ -57,7 +57,8 @@ func LoginHandler(c *gin.Context) {
 		RespondError(c, CodeInvalidParams)
 		return
 	}
-	err = service.Login(&params)
+	var token string
+	token, err = service.Login(&params)
 	if err != nil {
 		zap.L().Error("login error", zap.Error(err))
 		switch {
@@ -70,7 +71,7 @@ func LoginHandler(c *gin.Context) {
 		}
 		return
 	}
-	RespondSuccess(c)
+	RespondSuccess(c, token)
 }
 
 func CustomValidator() error {

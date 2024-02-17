@@ -8,6 +8,8 @@ const (
 	CodeUserExist
 	CodeUserNotExist
 	CodeInvalidPassword
+	CodeNeedLogin
+	CodeInvalidToken
 	CodeServerError
 )
 
@@ -17,6 +19,8 @@ var codeMsgMap = map[ResponseCode]string{
 	CodeUserExist:       "用户已存在",
 	CodeUserNotExist:    "用户不存在",
 	CodeInvalidPassword: "密码错误",
+	CodeNeedLogin:       "需要登录",
+	CodeInvalidToken:    "无效的token",
 	CodeServerError:     "服务出错",
 }
 

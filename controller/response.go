@@ -11,11 +11,11 @@ type ResponseData struct {
 	Data any          `json:"data"`
 }
 
-func RespondSuccess(c *gin.Context) {
+func RespondSuccess(c *gin.Context, data any) {
 	respData := ResponseData{
 		Code: CodeSuccess,
 		Msg:  CodeSuccess.Msg(),
-		Data: nil,
+		Data: data,
 	}
 	c.JSON(http.StatusOK, respData)
 

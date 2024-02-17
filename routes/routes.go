@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"raddit/controller"
 	"raddit/logger"
+	"raddit/middlewares"
 )
 
 func SetRouteEngine(mode string) *gin.Engine {
@@ -26,6 +27,15 @@ func SetRouteEngine(mode string) *gin.Engine {
 	r.POST("/register", controller.RegisterHandler)
 
 	r.POST("/login", controller.LoginHandler)
+
+	r.GET("/home", middlewares.JWTAuthMiddleware(), func(c *gin.Context) {
+		username := c.MustGet("username").(string)
+		c.JSON(http.StatusOK, gin.H{
+			"code": controller.CodeSuccess,
+			"msg":  controller.CodeSuccess.Msg(),
+			"data": gin.H{"username": username},
+		})
+	})
 
 	return r
 }

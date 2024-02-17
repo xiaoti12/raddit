@@ -3,6 +3,7 @@ package service
 import (
 	"raddit/dao/mysql"
 	"raddit/models"
+	"raddit/pkg/jwt"
 	"raddit/pkg/snowflake"
 )
 
@@ -27,11 +28,11 @@ func Register(p *models.RegisterParams) error {
 	return nil
 }
 
-func Login(p *models.LoginParams) error {
+func Login(p *models.LoginParams) (string, error) {
 	// check if user exists
 	err := mysql.CheckUserNotExists(p.Username)
 	if err != nil {
-		return err
+		return "", err
 	}
 	// check if password is correct
 	user := &models.User{
@@ -40,7 +41,7 @@ func Login(p *models.LoginParams) error {
 	}
 	err = mysql.CheckUserLogin(user)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return jwt.GenToken(user.UserID, user.Username)
 }
