@@ -7,8 +7,8 @@ import (
 )
 
 func Register(p *models.RegisterParams) error {
-	// check if user already exsits
-	err := mysql.CheckUserExsits(p.Username)
+	// check if user already exists
+	err := mysql.CheckUserExists(p.Username)
 	if err != nil {
 		return err
 	}
@@ -28,8 +28,8 @@ func Register(p *models.RegisterParams) error {
 }
 
 func Login(p *models.LoginParams) error {
-	// check if user exsits
-	err := mysql.CheckUserNotExsits(p.Username)
+	// check if user exists
+	err := mysql.CheckUserNotExists(p.Username)
 	if err != nil {
 		return err
 	}

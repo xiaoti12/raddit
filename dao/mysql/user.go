@@ -9,6 +9,12 @@ import (
 
 var salt = "xiaoti"
 
+var (
+	ErrorUserExist       = errors.New("user already exists")
+	ErrorUserNotExist    = errors.New("user not exists")
+	ErrorInvalidPassword = errors.New("invalid password")
+)
+
 func InsertUser(user *models.User) error {
 	sqlStr := "insert into user(user_id,username,password) values(?,?,?)"
 	encPwd := encryptPassword(user.Password)
@@ -19,7 +25,7 @@ func InsertUser(user *models.User) error {
 	return nil
 
 }
-func CheckUserExsits(username string) error {
+func CheckUserExists(username string) error {
 	var count int
 	sqlStr := "select count(*) from user where username = ?"
 	err := db.Get(&count, sqlStr, username)
@@ -27,12 +33,12 @@ func CheckUserExsits(username string) error {
 		return err
 	}
 	if count > 0 {
-		return errors.New("user already exsits")
+		return ErrorUserExist
 	}
 	return nil
 }
 
-func CheckUserNotExsits(username string) error {
+func CheckUserNotExists(username string) error {
 	var count int
 	sqlStr := "select count(*) from user where username = ?"
 	err := db.Get(&count, sqlStr, username)
@@ -40,7 +46,7 @@ func CheckUserNotExsits(username string) error {
 		return err
 	}
 	if count == 0 {
-		return errors.New("user not exsits")
+		return ErrorUserNotExist
 	}
 	return nil
 }
@@ -54,7 +60,7 @@ func CheckUserLogin(user *models.User) error {
 	}
 	encPwd := encryptPassword(user.Password)
 	if encPwd != pwdDB {
-		return errors.New("password not correct")
+		return ErrorInvalidPassword
 	}
 	return nil
 }

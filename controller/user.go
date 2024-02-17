@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
-	"net/http"
+	"raddit/dao/mysql"
 	"raddit/models"
 	"raddit/service"
 	"reflect"
@@ -22,30 +22,25 @@ func RegisterHandler(c *gin.Context) {
 		zap.L().Error("invalid register params", zap.Error(err))
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
-			c.JSON(http.StatusOK, gin.H{
-				"msg": editValidatorError(err.Error()),
-			})
+			RespondErrorWithMsg(c, CodeInvalidParams, editValidatorError(err.Error()))
 			return
 		}
 		// not a params validator error
-		c.JSON(http.StatusOK, gin.H{
-			"msg": err.Error(),
-		})
+		RespondError(c, CodeInvalidParams)
 		return
 	}
 	err = service.Register(&params)
 	if err != nil {
 		zap.L().Error("register error", zap.Error(err))
-		c.JSON(http.StatusOK, gin.H{
-			"msg": err.Error(),
-		})
+		if errors.Is(err, mysql.ErrorUserExist) {
+			RespondError(c, CodeUserExist)
+		} else {
+			RespondError(c, CodeServerError)
+		}
 		return
 	}
 	zap.L().Info("register success", zap.String("username", params.Username))
-	c.JSON(http.StatusOK, gin.H{
-		"msg": "register success",
-	})
-
+	RespondSuccess(c)
 }
 
 func LoginHandler(c *gin.Context) {
@@ -55,28 +50,27 @@ func LoginHandler(c *gin.Context) {
 		zap.L().Error("invalid login params", zap.Error(err))
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
-			c.JSON(http.StatusOK, gin.H{
-				"msg": editValidatorError(err.Error()),
-			})
+			RespondErrorWithMsg(c, CodeInvalidParams, editValidatorError(err.Error()))
 			return
 		}
 		// not a params validator error
-		c.JSON(http.StatusOK, gin.H{
-			"msg": err.Error(),
-		})
+		RespondError(c, CodeInvalidParams)
 		return
 	}
 	err = service.Login(&params)
 	if err != nil {
 		zap.L().Error("login error", zap.Error(err))
-		c.JSON(http.StatusOK, gin.H{
-			"msg": err.Error(),
-		})
+		switch {
+		case errors.Is(err, mysql.ErrorUserNotExist):
+			RespondError(c, CodeUserNotExist)
+		case errors.Is(err, mysql.ErrorInvalidPassword):
+			RespondError(c, CodeInvalidPassword)
+		default:
+			RespondError(c, CodeServerError)
+		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"msg": "login success",
-	})
+	RespondSuccess(c)
 }
 
 func CustomValidator() error {
