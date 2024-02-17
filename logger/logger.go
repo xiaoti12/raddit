@@ -18,7 +18,7 @@ import (
 var zlogger *zap.Logger
 var slogger *zap.SugaredLogger
 
-func Init(cfg *config.LogConfig) {
+func Init(cfg *config.LogConfig, mode string) {
 	logWriter := getWriter(cfg)
 	encoder := getEncoder()
 
@@ -27,7 +27,17 @@ func Init(cfg *config.LogConfig) {
 	if err != nil {
 		return
 	}
-	core := zapcore.NewCore(encoder, logWriter, level)
+
+	var core zapcore.Core
+	if mode == "dev" || mode == "debug" {
+		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+		core = zapcore.NewTee(
+			zapcore.NewCore(encoder, logWriter, level),
+			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),
+		)
+	} else {
+		core = zapcore.NewCore(encoder, logWriter, level)
+	}
 
 	zlogger = zap.New(core, zap.AddCaller())
 	slogger = zlogger.Sugar()
@@ -47,8 +57,8 @@ func getWriter(cfg *config.LogConfig) zapcore.WriteSyncer {
 	return zapcore.AddSync(ljLogger)
 }
 func getEncoder() zapcore.Encoder {
-	encoderConfig := zap.NewDevelopmentEncoderConfig()
-	return zapcore.NewConsoleEncoder(encoderConfig)
+	encoderConfig := zap.NewProductionEncoderConfig()
+	return zapcore.NewJSONEncoder(encoderConfig)
 }
 
 // GinLogger 接收gin框架默认的日志

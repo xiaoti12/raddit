@@ -8,7 +8,10 @@ import (
 	"raddit/logger"
 )
 
-func SetRouteEngine() *gin.Engine {
+func SetRouteEngine(mode string) *gin.Engine {
+	if mode == gin.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	err := controller.CustomValidator()
 	if err != nil {
 		fmt.Println(err)

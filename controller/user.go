@@ -35,11 +35,13 @@ func RegisterHandler(c *gin.Context) {
 	}
 	err = service.Register(&params)
 	if err != nil {
+		zap.L().Error("register error", zap.Error(err))
 		c.JSON(http.StatusOK, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+	zap.L().Info("register success", zap.String("username", params.Username))
 	c.JSON(http.StatusOK, gin.H{
 		"msg": "register success",
 	})

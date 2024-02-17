@@ -30,14 +30,14 @@ func main() {
 		panic(err)
 	}
 	// 3. init logger
-	logger.Init(config.Conf.LogConfig)
+	logger.Init(config.Conf.LogConfig, config.Conf.Mode)
 	// init snowflake user id generator
 	err = snowflake.Init(config.Conf.StartTime, config.Conf.MachineID)
 	if err != nil {
 		panic(err)
 	}
 	// 4. setup router engine
-	r := routes.SetRouteEngine()
+	r := routes.SetRouteEngine(config.Conf.Mode)
 	// 5. start service
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", config.Conf.Port),
