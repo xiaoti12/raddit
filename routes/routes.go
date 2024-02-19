@@ -38,7 +38,8 @@ func SetRouteEngine(mode string) *gin.Engine {
 				"data": gin.H{"username": username},
 			})
 		})
-		v.GET("/communitylist", controller.CommunityHandler)
+		v.GET("/communitylist", controller.CommunityListHandler)
+		v.GET("/community/:id", controller.CommunityDetailHandler)
 	}
 	return r
 }
