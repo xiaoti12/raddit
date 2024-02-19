@@ -24,18 +24,21 @@ func SetRouteEngine(mode string) *gin.Engine {
 		c.String(http.StatusOK, "hello I'm gin\n")
 	})
 
-	r.POST("/register", controller.RegisterHandler)
+	v := r.Group("/api")
+	v.POST("/register", controller.RegisterHandler)
+	v.POST("/login", controller.LoginHandler)
 
-	r.POST("/login", controller.LoginHandler)
-
-	r.GET("/home", middlewares.JWTAuthMiddleware(), func(c *gin.Context) {
-		username := c.MustGet("username").(string)
-		c.JSON(http.StatusOK, gin.H{
-			"code": controller.CodeSuccess,
-			"msg":  controller.CodeSuccess.Msg(),
-			"data": gin.H{"username": username},
+	v.Use(middlewares.JWTAuthMiddleware())
+	{
+		v.GET("/home", func(c *gin.Context) {
+			username := c.MustGet("username").(string)
+			c.JSON(http.StatusOK, gin.H{
+				"code": controller.CodeSuccess,
+				"msg":  controller.CodeSuccess.Msg(),
+				"data": gin.H{"username": username},
+			})
 		})
-	})
-
+		v.GET("/communitylist", controller.CommunityHandler)
+	}
 	return r
 }
