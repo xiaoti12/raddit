@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Post struct {
-	ID          int64     `json:"id" db:"post_id"`
+	ID          int64     `json:"post_id" db:"post_id"`
 	AuthorID    int64     `json:"author_id" db:"author_id"`
 	CommunityID int64     `json:"community_id" db:"community_id" binding:"required"`
 	Title       string    `json:"title" db:"title" binding:"required"`
@@ -13,7 +13,9 @@ type Post struct {
 }
 
 type PostDetail struct {
-	AuthorName string `json:"author_name"`
+	AuthorName    string `json:"author_name"`
+	CommunityName string `json:"community_name"`
 	*Post
-	*CommunityBasic
+	//*CommunityBasic
+	// Post 和 CommunityBasic 字段存在相同tag内容，冲突会导致该字段确实
 }
