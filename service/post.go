@@ -37,3 +37,33 @@ func GetPostDetail(id int64) (*models.PostDetail, error) {
 
 	return postDetail, nil
 }
+
+func GetPostList(page, size int) ([]*models.PostDetail, error) {
+	posts, err := mysql.GetPostList(page, size)
+	if err != nil {
+		zap.L().Error("get post list in GetPostDetailList() error", zap.Error(err))
+		return nil, err
+	}
+	postDetails := make([]*models.PostDetail, 0, len(posts))
+	for _, post := range posts {
+		postDetail := new(models.PostDetail)
+		postDetail.Post = post
+
+		authorName, err := mysql.GetUsernameByID(postDetail.AuthorID)
+		if err != nil {
+			zap.L().Error("get author name in GetPostDetailList() error", zap.Error(err), zap.Int64("author_id", postDetail.AuthorID))
+			continue
+		}
+		postDetail.AuthorName = authorName
+
+		community, err := mysql.GetCommunityBasic(postDetail.CommunityID)
+		if err != nil {
+			zap.L().Error("get community in GetPostDetailList() error", zap.Error(err), zap.Int64("community_id", postDetail.CommunityID))
+			continue
+		}
+		postDetail.CommunityName = community.Name
+
+		postDetails = append(postDetails, postDetail)
+	}
+	return postDetails, nil
+}

@@ -55,7 +55,7 @@ func GetPostDetailHandler(c *gin.Context) {
 
 func GetPostListHandler(c *gin.Context) {
 	page, size := GetPageSize(c)
-	posts, err := service.GetPostDetailList(page, size)
+	posts, err := service.GetPostList(page, size)
 	if err != nil {
 		zap.L().Error("get post list failed", zap.Error(err))
 		RespondError(c, CodeServerError)
