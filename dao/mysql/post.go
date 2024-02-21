@@ -1,6 +1,10 @@
 package mysql
 
-import "raddit/models"
+import (
+	"database/sql"
+	"errors"
+	"raddit/models"
+)
 
 func InsertPost(post *models.Post) error {
 	sqlStr := `insert into post
@@ -19,8 +23,8 @@ func GetPostByID(id int64) (*models.Post, error) {
 	from post
 	where post_id = ?`
 	err := db.Get(p, sqlStr, id)
-	if err != nil {
-		return nil, err
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		err = ErrorInvalidID
 	}
-	return p, nil
+	return p, err
 }

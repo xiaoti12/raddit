@@ -21,16 +21,16 @@ func GetCommunityList() ([]*models.CommunityBasic, error) {
 }
 
 func GetCommunityDetail(id int64) (*models.CommunityDetail, error) {
-	var CommDetail = new(models.CommunityDetail)
+	var commDetail = new(models.CommunityDetail)
 	// cannot use `select *` here
 	sqlStr := `select 
     	community_id, community_name, introduction, create_time, update_time
 		from community where community_id = ?`
-	err := db.Get(CommDetail, sqlStr, id)
+	err := db.Get(commDetail, sqlStr, id)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		err = ErrorInvalidID
 	}
-	return CommDetail, err
+	return commDetail, err
 }
 
 func GetCommunityBasic(id int64) (*models.CommunityBasic, error) {

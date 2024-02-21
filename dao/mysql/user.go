@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 	"errors"
 	"raddit/models"
@@ -29,10 +30,10 @@ func GetUsernameByID(id int64) (string, error) {
 	var username string
 	sqlStr := "select username from user where user_id = ?"
 	err := db.Get(&username, sqlStr, id)
-	if err != nil {
-		return "", err
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		err = ErrorInvalidID
 	}
-	return username, nil
+	return username, err
 }
 
 func CheckUserExists(username string) error {
