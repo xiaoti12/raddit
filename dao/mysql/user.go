@@ -52,14 +52,15 @@ func CheckUserNotExists(username string) error {
 }
 
 func CheckUserLogin(user *models.User) error {
-	var pwdDB string
-	sqlStr := "select password from user where username = ?"
-	err := db.Get(&pwdDB, sqlStr, user.Username)
+	// 原始密码加密
+	encPwd := encryptPassword(user.Password)
+	sqlStr := "select user_id,username,password from user where username = ?"
+	err := db.Get(user, sqlStr, user.Username)
 	if err != nil {
 		return err
 	}
-	encPwd := encryptPassword(user.Password)
-	if encPwd != pwdDB {
+	// 将原始加密密码和数据库加密密码比较
+	if encPwd != user.Password {
 		return ErrorInvalidPassword
 	}
 	return nil
