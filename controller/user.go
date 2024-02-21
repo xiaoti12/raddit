@@ -15,6 +15,13 @@ import (
 	"strings"
 )
 
+const (
+	CtxUserID   = "userID"
+	CtxUserName = "userName"
+)
+
+var ErrorNotLogin = errors.New("user not login")
+
 func RegisterHandler(c *gin.Context) {
 	var params models.RegisterParams
 	err := c.ShouldBindJSON(&params)
@@ -103,4 +110,16 @@ func editValidatorError(errStr string) map[string]string {
 	}
 	// 直接返回map，交由c.JSON处理
 	return result
+}
+
+func GetCtxUserID(c *gin.Context) (int64, error) {
+	ctxUID, ok := c.Get(CtxUserID)
+	if !ok {
+		return 0, ErrorNotLogin
+	}
+	userID, ok := ctxUID.(int64)
+	if !ok {
+		return 0, ErrorNotLogin
+	}
+	return userID, nil
 }

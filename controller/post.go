@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"raddit/models"
@@ -15,7 +16,16 @@ func CreatePostHandler(c *gin.Context) {
 		RespondError(c, CodeInvalidParams)
 		return
 	}
-	// TODO: add getting userID from context
+
+	uid, err := GetCtxUserID(c)
+	fmt.Println("uid: ", uid)
+	if err != nil {
+		zap.L().Error("get user id failed", zap.Error(err))
+		RespondError(c, CodeNeedLogin)
+		return
+	}
+	p.AuthorID = uid
+
 	err = service.CreatePost(p)
 	if err != nil {
 		zap.L().Error("create post failed", zap.Error(err))
