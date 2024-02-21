@@ -23,8 +23,18 @@ func InsertUser(user *models.User) error {
 		return err
 	}
 	return nil
-
 }
+
+func GetUsernameByID(id int64) (string, error) {
+	var username string
+	sqlStr := "select username from user where user_id = ?"
+	err := db.Get(&username, sqlStr, id)
+	if err != nil {
+		return "", err
+	}
+	return username, nil
+}
+
 func CheckUserExists(username string) error {
 	var count int
 	sqlStr := "select count(*) from user where username = ?"

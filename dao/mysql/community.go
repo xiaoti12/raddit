@@ -32,3 +32,15 @@ func GetCommunityDetail(id int64) (*models.CommunityDetail, error) {
 	}
 	return CommDetail, err
 }
+
+func GetCommunityBasic(id int64) (*models.CommunityBasic, error) {
+	var communityBasic = new(models.CommunityBasic)
+	sqlStr := `select community_id, community_name
+		from community
+		where community_id = ?`
+	err := db.Get(communityBasic, sqlStr, id)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		err = ErrorInvalidID
+	}
+	return communityBasic, err
+}

@@ -42,6 +42,7 @@ func SetRouteEngine(mode string) *gin.Engine {
 		v.GET("/community/:id", controller.CommunityDetailHandler)
 
 		v.POST("/post", controller.CreatePostHandler)
+		v.GET("/post/:id", controller.GetPostDetailHandler)
 	}
 	return r
 }

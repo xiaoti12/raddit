@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"raddit/models"
 	"raddit/service"
+	"strconv"
 )
 
 func CreatePostHandler(c *gin.Context) {
@@ -33,4 +34,21 @@ func CreatePostHandler(c *gin.Context) {
 		return
 	}
 	RespondSuccess(c, nil)
+}
+
+func GetPostDetailHandler(c *gin.Context) {
+	pidStr := c.Param("id")
+	pid, err := strconv.Atoi(pidStr)
+	if err != nil {
+		zap.L().Error("get post detail with invalid params", zap.Error(err), zap.String("id", pidStr))
+		RespondError(c, CodeInvalidParams)
+		return
+	}
+	postData, err := service.GetPostDetail(int64(pid))
+	if err != nil {
+		zap.L().Error("get post detail failed", zap.Error(err))
+		RespondError(c, CodeServerError)
+		return
+	}
+	RespondSuccess(c, postData)
 }
