@@ -33,7 +33,7 @@ func GetPostDetail(id int64) (*models.PostDetail, error) {
 		zap.L().Error("get community in GetPostDetail() error", zap.Error(err))
 		return nil, err
 	}
-	postDetail.CommunityBasic = community
+	postDetail.CommunityName = community.Name
 
 	return postDetail, nil
 }

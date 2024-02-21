@@ -28,3 +28,12 @@ func GetPostByID(id int64) (*models.Post, error) {
 	}
 	return p, err
 }
+
+func GetPostList(page, size int) ([]*models.Post, error) {
+	sqlStr := `select post_id, author_id, community_id, title, content, status, create_time
+	from post
+	limit ?,?`
+	var posts []*models.Post
+	err := db.Select(&posts, sqlStr, (page-1)*size, size)
+	return posts, err
+}

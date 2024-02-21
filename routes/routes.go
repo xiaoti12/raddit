@@ -41,8 +41,9 @@ func SetRouteEngine(mode string) *gin.Engine {
 		v.GET("/communitylist", controller.CommunityListHandler)
 		v.GET("/community/:id", controller.CommunityDetailHandler)
 
-		v.POST("/post", controller.CreatePostHandler)
+		v.POST("/create/post", controller.CreatePostHandler)
 		v.GET("/post/:id", controller.GetPostDetailHandler)
+		v.GET("/postlist", controller.GetPostListHandler)
 	}
 	return r
 }
