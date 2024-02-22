@@ -3,13 +3,24 @@ package service
 import (
 	"go.uber.org/zap"
 	"raddit/dao/mysql"
+	"raddit/dao/redisdb"
 	"raddit/models"
 	"raddit/pkg/snowflake"
+	"strconv"
 )
 
 func CreatePost(post *models.Post) error {
 	post.ID = snowflake.GenID()
-	return mysql.InsertPost(post)
+
+	err := mysql.InsertPost(post)
+	if err != nil {
+		return err
+	}
+
+	postID := strconv.Itoa(int(post.ID))
+	postTime := float64(post.CreateTime.Unix())
+	err = redisdb.CreatePostTime(postID, postTime)
+	return err
 }
 
 func GetPostDetail(id int64) (*models.PostDetail, error) {
