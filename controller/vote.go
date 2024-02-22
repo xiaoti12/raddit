@@ -24,6 +24,13 @@ func VotePostHandler(c *gin.Context) {
 		return
 	}
 
+	userID, err := GetCtxUserID(c)
+	if err != nil {
+		RespondError(c, CodeNeedLogin)
+		return
+	}
+	p.UserID = userID
+
 	err = service.VotePost(p)
 	if err != nil {
 		zap.L().Error("vote post error", zap.Error(err))

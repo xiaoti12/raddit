@@ -8,7 +8,10 @@ import (
 	"time"
 )
 
-var rdb *redis.Client
+var (
+	rdb *redis.Client
+	ctx context.Context
+)
 
 func Init(cfg *config.RedisConfig) error {
 	rdb = redis.NewClient(&redis.Options{
@@ -17,7 +20,8 @@ func Init(cfg *config.RedisConfig) error {
 		DB:       cfg.DB,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	_, err := rdb.Ping(ctx).Result()
