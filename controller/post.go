@@ -6,6 +6,7 @@ import (
 	"raddit/models"
 	"raddit/service"
 	"strconv"
+	"time"
 )
 
 func CreatePostHandler(c *gin.Context) {
@@ -24,6 +25,7 @@ func CreatePostHandler(c *gin.Context) {
 		return
 	}
 	p.AuthorID = uid
+	p.CreateTime = time.Now()
 
 	err = service.CreatePost(p)
 	if err != nil {

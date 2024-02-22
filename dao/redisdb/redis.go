@@ -20,10 +20,10 @@ func Init(cfg *config.RedisConfig) error {
 		DB:       cfg.DB,
 	})
 
-	var cancel context.CancelFunc
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	ctx = context.Background()
 
-	_, err := rdb.Ping(ctx).Result()
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err := rdb.Ping(timeoutCtx).Result()
 	return err
 }
