@@ -45,6 +45,7 @@ func SetRouteEngine(mode string) *gin.Engine {
 		v.GET("/post/:id", controller.GetPostDetailHandler)
 		v.GET("/postlist", controller.GetPostListHandler)
 		v.POST("/vote", controller.VotePostHandler)
+		v.GET("/postlist/order", controller.GetOrderedPostListHandler)
 	}
 	return r
 }

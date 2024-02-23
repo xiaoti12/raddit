@@ -78,3 +78,23 @@ func GetPostList(page, size int) ([]*models.PostDetail, error) {
 	}
 	return postDetails, nil
 }
+
+func GetOrderedPostList(p *models.PostListParams) ([]*models.Post, error) {
+	// get id list from redis
+	ids, err := redisdb.GetOrderedPostIDs(p)
+	if err != nil {
+		zap.L().Error("get post ids from redis in GetPostDetailList() error", zap.Error(err))
+		return nil, err
+	}
+	if len(ids) == 0 {
+		zap.L().Warn("no post from redis in GetPostDetailList()", zap.Any("params", p))
+		return nil, nil
+	}
+	posts, err := mysql.GetPostListByIDs(ids)
+	if err != nil {
+		zap.L().Error("get post list from mysql in GetPostDetailList() error", zap.Error(err))
+		return nil, err
+	}
+	// TODO: complete post info in list
+	return posts, nil
+}
