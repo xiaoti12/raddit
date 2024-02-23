@@ -31,10 +31,14 @@ func GetUserAttitude(userID, postID string) float64 {
 func ChangePostScore(userID, postID string, attitude, score float64) error {
 	pipeline := rdb.TxPipeline()
 	pipeline.ZIncrBy(ctx, KeyPostScoreZSet, score, postID)
-	pipeline.ZAdd(ctx, KeyPostVotedZSetPrefix+postID, redis.Z{
-		Score:  attitude,
-		Member: userID,
-	})
+	if attitude == 0 {
+		pipeline.ZRem(ctx, KeyPostVotedZSetPrefix+postID, userID)
+	} else {
+		pipeline.ZAdd(ctx, KeyPostVotedZSetPrefix+postID, redis.Z{
+			Score:  attitude,
+			Member: userID,
+		})
+	}
 	_, err := pipeline.Exec(ctx)
 	return err
 }
