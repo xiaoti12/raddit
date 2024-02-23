@@ -1,20 +1,22 @@
 package redisdb
 
-import "github.com/redis/go-redis/v9"
+import (
+	"github.com/redis/go-redis/v9"
+)
 
 func CreatePostTime(id string, time float64) error {
+	pipeline := rdb.TxPipeline()
 	// add post time (not changed)
-	_, err := rdb.ZAdd(ctx, KeyPostTimeZSet, redis.Z{
+	pipeline.ZAdd(ctx, KeyPostTimeZSet, redis.Z{
 		Score:  time,
 		Member: id,
-	}).Result()
-
+	})
 	// add post time for score
-	_, err = rdb.ZAdd(ctx, KeyPostScoreZSet, redis.Z{
+	pipeline.ZAdd(ctx, KeyPostScoreZSet, redis.Z{
 		Score:  time,
 		Member: id,
-	}).Result()
-
+	})
+	_, err := pipeline.Exec(ctx)
 	return err
 }
 
@@ -27,13 +29,12 @@ func GetUserAttitude(userID, postID string) float64 {
 }
 
 func ChangePostScore(userID, postID string, attitude, score float64) error {
-	_, err := rdb.ZIncrBy(ctx, KeyPostScoreZSet, score, postID).Result()
-	if err != nil {
-		return err
-	}
-	_, err = rdb.ZAdd(ctx, KeyPostVotedZSetPrefix+postID, redis.Z{
+	pipeline := rdb.TxPipeline()
+	pipeline.ZIncrBy(ctx, KeyPostScoreZSet, score, postID)
+	pipeline.ZAdd(ctx, KeyPostVotedZSetPrefix+postID, redis.Z{
 		Score:  attitude,
 		Member: userID,
-	}).Result()
+	})
+	_, err := pipeline.Exec(ctx)
 	return err
 }
