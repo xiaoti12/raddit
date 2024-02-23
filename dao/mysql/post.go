@@ -46,7 +46,7 @@ func GetPostListByIDs(ids []string) ([]*models.Post, error) {
 	where post_id in (?)
 	order by FIND_IN_SET(post_id,?)
 	`
-	query, args, err := sqlx.In(sqlStr, strings.Join(ids, ","))
+	query, args, err := sqlx.In(sqlStr, ids, strings.Join(ids, ","))
 	if err != nil {
 		return nil, err
 	}
