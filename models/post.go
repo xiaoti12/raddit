@@ -15,6 +15,7 @@ type Post struct {
 type PostDetail struct {
 	AuthorName    string `json:"author_name"`
 	CommunityName string `json:"community_name"`
+	Votes         int64  `json:"vote_num"`
 	*Post
 	//*CommunityBasic
 	// Post 和 CommunityBasic 字段存在相同tag内容，冲突会导致该字段确实

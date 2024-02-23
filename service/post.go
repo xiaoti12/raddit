@@ -74,14 +74,23 @@ func GetOrderedPostList(p *models.PostListParams) ([]*models.PostDetail, error) 
 		zap.L().Warn("no post from redis in GetPostDetailList()", zap.Any("params", p))
 		return nil, nil
 	}
+	// get votes from redis by id list
+	votesData, err := redisdb.GetPostVoteData(ids)
+	if err != nil {
+		zap.L().Error("get post votes from redis in GetPostDetailList() error", zap.Error(err))
+		return nil, err
+	}
+	// get post list from mysql by id list
 	posts, err := mysql.GetPostListByIDs(ids)
 	if err != nil {
 		zap.L().Error("get post list from mysql in GetPostDetailList() error", zap.Error(err))
 		return nil, err
 	}
+	// complete post detail
 	postDetails := make([]*models.PostDetail, 0, len(posts))
-	for _, post := range posts {
+	for i, post := range posts {
 		postDetail := completePostInfo(post)
+		postDetail.Votes = votesData[i]
 		postDetails = append(postDetails, postDetail)
 	}
 	return postDetails, nil
