@@ -1,7 +1,9 @@
 package redisdb
 
 import (
+	"fmt"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 	"raddit/models"
 	"strconv"
 	"time"
@@ -59,29 +61,33 @@ func GetOrderedPostIDs(p *models.PostListParams) ([]string, error) {
 	return getPostIDs(key, p.Page, p.Size)
 }
 
-func GetOrderedPostIDsByCommunity(p *models.PostListParams, communityID int64) ([]string, error) {
+func GetOrderedPostIDsByCommunity(p *models.PostListParams) ([]string, error) {
+	communityID := int64(*p.CommunityID)
 	communityKey := KeyCommunitySetPrefix + strconv.Itoa(int(communityID))
 	// generate order key of certain community
-	var orderKey string
+	var cacheKey, orderKey string
 	if p.OrderType == models.OrderByTime {
-		orderKey = KeyPostTimeZSet + strconv.Itoa(int(communityID))
+		orderKey = KeyPostTimeZSet
 	} else {
-		orderKey = KeyPostScoreZSet + strconv.Itoa(int(communityID))
+		orderKey = KeyPostScoreZSet
 	}
+	cacheKey = orderKey + fmt.Sprintf(":%d", communityID)
 	// check cache
 	pipeline := rdb.TxPipeline()
-	if rdb.Exists(ctx, orderKey).Val() == 0 {
-		pipeline.ZInterStore(ctx, orderKey, &redis.ZStore{
+	if rdb.Exists(ctx, cacheKey).Val() == 0 {
+		pipeline.ZInterStore(ctx, cacheKey, &redis.ZStore{
 			Keys:      []string{communityKey, orderKey},
 			Aggregate: "MAX",
 		})
-		pipeline.Expire(ctx, orderKey, 3600*time.Second)
+		pipeline.Expire(ctx, cacheKey, 3600*time.Second)
 		_, err := pipeline.Exec(ctx)
 		if err != nil {
+			zap.L().Error("create zset of certain community error", zap.Error(err), zap.String("key", cacheKey))
 			return nil, err
 		}
+		zap.L().Debug("create zset of certain community", zap.String("key", cacheKey))
 	}
-	return getPostIDs(orderKey, p.Page, p.Size)
+	return getPostIDs(cacheKey, p.Page, p.Size)
 }
 
 func GetPostVoteData(ids []string) ([]int64, error) {

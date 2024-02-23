@@ -23,7 +23,8 @@ type VoteParams struct {
 }
 
 type PostListParams struct {
-	Page      int    `json:"page" form:"page"`
-	Size      int    `json:"size" form:"size"`
-	OrderType string `json:"order" form:"order"`
+	Page        int    `json:"page" form:"page"`
+	Size        int    `json:"size" form:"size"`
+	CommunityID *int   `json:"community_id" form:"community_id"`
+	OrderType   string `json:"order" form:"order"`
 }

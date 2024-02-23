@@ -78,9 +78,9 @@ func GetOrderedPostList(p *models.PostListParams) ([]*models.PostDetail, error) 
 	return getPostListDataByIDs(ids)
 }
 
-func GetOrderedPostListByCommunity(p *models.PostListParams, communityID int64) ([]*models.PostDetail, error) {
+func GetOrderedPostListByCommunity(p *models.PostListParams) ([]*models.PostDetail, error) {
 	// get id list from redis
-	ids, err := redisdb.GetOrderedPostIDsByCommunity(p, communityID)
+	ids, err := redisdb.GetOrderedPostIDsByCommunity(p)
 	if err != nil {
 		zap.L().Error("get post ids from redis in GetOrderedPostListByCommunity() error", zap.Error(err))
 		return nil, err

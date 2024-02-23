@@ -77,7 +77,12 @@ func GetOrderedPostListHandler(c *gin.Context) {
 		RespondError(c, CodeInvalidParams)
 		return
 	}
-	posts, err := service.GetOrderedPostList(p)
+	var posts []*models.PostDetail
+	if p.CommunityID == nil {
+		posts, err = service.GetOrderedPostList(p)
+	} else {
+		posts, err = service.GetOrderedPostListByCommunity(p)
+	}
 	if err != nil {
 		zap.L().Error("get post list failed", zap.Error(err))
 		RespondError(c, CodeServerError)
