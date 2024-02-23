@@ -19,7 +19,8 @@ func CreatePost(post *models.Post) error {
 
 	postID := strconv.Itoa(int(post.ID))
 	postTime := float64(post.CreateTime.Unix())
-	err = redisdb.CreatePostTime(postID, postTime)
+	communityID := strconv.Itoa(int(post.CommunityID))
+	err = redisdb.CreatePostData(postID, communityID, postTime)
 	return err
 }
 
@@ -71,19 +72,37 @@ func GetOrderedPostList(p *models.PostListParams) ([]*models.PostDetail, error) 
 		return nil, err
 	}
 	if len(ids) == 0 {
-		zap.L().Warn("no post from redis in GetPostDetailList()", zap.Any("params", p))
+		zap.L().Warn("no post from redis", zap.Any("params", p))
 		return nil, nil
 	}
+	return getPostListDataByIDs(ids)
+}
+
+func GetOrderedPostListByCommunity(p *models.PostListParams, communityID int64) ([]*models.PostDetail, error) {
+	// get id list from redis
+	ids, err := redisdb.GetOrderedPostIDsByCommunity(p, communityID)
+	if err != nil {
+		zap.L().Error("get post ids from redis in GetOrderedPostListByCommunity() error", zap.Error(err))
+		return nil, err
+	}
+	if len(ids) == 0 {
+		zap.L().Warn("no post from redis", zap.Any("params", p))
+		return nil, nil
+	}
+	return getPostListDataByIDs(ids)
+}
+
+func getPostListDataByIDs(ids []string) ([]*models.PostDetail, error) {
 	// get votes from redis by id list
 	votesData, err := redisdb.GetPostVoteData(ids)
 	if err != nil {
-		zap.L().Error("get post votes from redis in GetPostDetailList() error", zap.Error(err))
+		zap.L().Error("get post votes data from redis error", zap.Error(err))
 		return nil, err
 	}
 	// get post list from mysql by id list
 	posts, err := mysql.GetPostListByIDs(ids)
 	if err != nil {
-		zap.L().Error("get post list from mysql in GetPostDetailList() error", zap.Error(err))
+		zap.L().Error("get post list data from mysql in error", zap.Error(err))
 		return nil, err
 	}
 	// complete post detail

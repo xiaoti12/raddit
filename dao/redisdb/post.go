@@ -3,20 +3,30 @@ package redisdb
 import (
 	"github.com/redis/go-redis/v9"
 	"raddit/models"
+	"strconv"
+	"time"
 )
 
-func CreatePostTime(id string, time float64) error {
+func getPostIDs(key string, page, size int) ([]string, error) {
+	start := (page - 1) * size
+	stop := start + size - 1
+	return rdb.ZRevRange(ctx, key, int64(start), int64(stop)).Result()
+}
+
+func CreatePostData(postID, communityID string, time float64) error {
 	pipeline := rdb.TxPipeline()
 	// add post time (not changed)
 	pipeline.ZAdd(ctx, KeyPostTimeZSet, redis.Z{
 		Score:  time,
-		Member: id,
+		Member: postID,
 	})
 	// add post time for score
 	pipeline.ZAdd(ctx, KeyPostScoreZSet, redis.Z{
 		Score:  time,
-		Member: id,
+		Member: postID,
 	})
+	// add post in community
+	pipeline.SAdd(ctx, KeyCommunitySetPrefix+communityID, postID)
 	_, err := pipeline.Exec(ctx)
 	return err
 }
@@ -46,11 +56,32 @@ func GetOrderedPostIDs(p *models.PostListParams) ([]string, error) {
 	if p.OrderType == models.OrderByScore {
 		key = KeyPostScoreZSet
 	}
-	// confirm query start and stop
-	start := (p.Page - 1) * p.Size
-	stop := start + p.Size - 1
+	return getPostIDs(key, p.Page, p.Size)
+}
 
-	return rdb.ZRevRange(ctx, key, int64(start), int64(stop)).Result()
+func GetOrderedPostIDsByCommunity(p *models.PostListParams, communityID int64) ([]string, error) {
+	communityKey := KeyCommunitySetPrefix + strconv.Itoa(int(communityID))
+	// generate order key of certain community
+	var orderKey string
+	if p.OrderType == models.OrderByTime {
+		orderKey = KeyPostTimeZSet + strconv.Itoa(int(communityID))
+	} else {
+		orderKey = KeyPostScoreZSet + strconv.Itoa(int(communityID))
+	}
+	// check cache
+	pipeline := rdb.TxPipeline()
+	if rdb.Exists(ctx, orderKey).Val() == 0 {
+		pipeline.ZInterStore(ctx, orderKey, &redis.ZStore{
+			Keys:      []string{communityKey, orderKey},
+			Aggregate: "MAX",
+		})
+		pipeline.Expire(ctx, orderKey, 3600*time.Second)
+		_, err := pipeline.Exec(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return getPostIDs(orderKey, p.Page, p.Size)
 }
 
 func GetPostVoteData(ids []string) ([]int64, error) {
