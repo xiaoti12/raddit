@@ -18,6 +18,11 @@ import (
 	"time"
 )
 
+// @title Raddit
+// @version 1.0
+// @description This is a simple forum service.
+// @host 127.0.0.1:8898
+// @BasePath /api
 func main() {
 	var err error
 	// 1. init config

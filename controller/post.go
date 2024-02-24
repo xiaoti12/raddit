@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+// CreatePostHandler create new post
+// @Summary create new post
+// @Tags Post
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization: Bearer {token}"
+// @Param json body models.Post true "create post params"
+// @Success 200 {object} ResponseData
+// @Router /create/post [post]
 func CreatePostHandler(c *gin.Context) {
 	p := new(models.Post)
 	err := c.ShouldBindJSON(p)
@@ -36,6 +45,15 @@ func CreatePostHandler(c *gin.Context) {
 	RespondSuccess(c, nil)
 }
 
+// GetPostDetailHandler get post detail by id
+// @Summary get post detail by id
+// @Tags Post
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization: Bearer {token}"
+// @Param id path int true "post id"
+// @Success 200 {object} SwaggerPostDetailResponse
+// @Router /post/{id} [get]
 func GetPostDetailHandler(c *gin.Context) {
 	pidStr := c.Param("id")
 	pid, err := strconv.Atoi(pidStr)
@@ -53,6 +71,15 @@ func GetPostDetailHandler(c *gin.Context) {
 	RespondSuccess(c, postData)
 }
 
+// GetPostListHandler get post info list
+// @Summary get post info list
+// @Tags Post
+// @Produce json
+// @Param Authorization header string true "Authorization: Bearer {token}"
+// @Param page query int false "page"
+// @Param size query int false "size"
+// @Success 200 {object} SwaggerPostListResponse
+// @Router /list/post [get]
 func GetPostListHandler(c *gin.Context) {
 	page, size := GetPageSize(c)
 	posts, err := service.GetPostList(page, size)
@@ -64,6 +91,15 @@ func GetPostListHandler(c *gin.Context) {
 	RespondSuccess(c, posts)
 }
 
+// GetOrderedPostListHandler get post info list by order(time or score)
+// @Summary get post info list by order
+// @Tags Post
+// @Produce json
+// @Param Authorization header string true "Authorization: Bearer {token}"
+// @Param page query int false "page"
+// @Param size query int false "size"
+// @Param order_type query string false "order_type: time/score"
+// @Success 200 {object} SwaggerPostListResponse
 func GetOrderedPostListHandler(c *gin.Context) {
 	// set default value
 	p := &models.PostListParams{

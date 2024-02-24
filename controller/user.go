@@ -22,6 +22,14 @@ const (
 
 var ErrorNotLogin = errors.New("user not login")
 
+// RegisterHandler register new user
+// @Summary register new user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param json body models.RegisterParams true "register params"
+// @Success 200 {object} ResponseData
+// @Router /register [post]
 func RegisterHandler(c *gin.Context) {
 	var params models.RegisterParams
 	err := c.ShouldBindJSON(&params)
@@ -50,6 +58,14 @@ func RegisterHandler(c *gin.Context) {
 	RespondSuccess(c, nil)
 }
 
+// LoginHandler user login
+// @Summary user login
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param json body models.LoginParams true "login params"
+// @Success 200 {object} ResponseData
+// @Router /login [post]
 func LoginHandler(c *gin.Context) {
 	var params models.LoginParams
 	err := c.ShouldBindJSON(&params)

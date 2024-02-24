@@ -3,8 +3,11 @@ package routes
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 	"raddit/controller"
+	_ "raddit/docs"
 	"raddit/logger"
 	"raddit/middlewares"
 )
@@ -38,14 +41,16 @@ func SetRouteEngine(mode string) *gin.Engine {
 				"data": gin.H{"username": username},
 			})
 		})
-		v.GET("/communitylist", controller.CommunityListHandler)
+		v.GET("/list/community", controller.CommunityListHandler)
 		v.GET("/community/:id", controller.CommunityDetailHandler)
 
 		v.POST("/create/post", controller.CreatePostHandler)
 		v.GET("/post/:id", controller.GetPostDetailHandler)
-		v.GET("/postlist", controller.GetPostListHandler)
+		v.GET("/list/post", controller.GetPostListHandler)
 		v.POST("/vote", controller.VotePostHandler)
-		v.GET("/postlist/order", controller.GetOrderedPostListHandler)
+		v.GET("/list/post/order", controller.GetOrderedPostListHandler)
 	}
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return r
 }

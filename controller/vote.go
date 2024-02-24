@@ -9,6 +9,15 @@ import (
 	"raddit/service"
 )
 
+// VotePostHandler VotePost vote for post
+// @Summary vote for post
+// @Tags Post
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization: Bearer {token}"
+// @Param json body models.VoteParams true "vote params"
+// @Success 200 {object} ResponseData
+// @Router /vote [post]
 func VotePostHandler(c *gin.Context) {
 	p := new(models.VoteParams)
 	err := c.ShouldBindJSON(p)

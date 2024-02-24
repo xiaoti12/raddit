@@ -3,12 +3,37 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"raddit/models"
 )
 
 type ResponseData struct {
 	Code ResponseCode `json:"code"`
-	Msg  any          `json:"msg"`
-	Data any          `json:"data"`
+	Msg  any          `json:"msg"`  // may be string or json object
+	Data any          `json:"data"` // may be string or json object
+}
+
+type SwaggerCommunityListResponse struct {
+	Code ResponseCode             `json:"code"`
+	Msg  string                   `json:"msg"`
+	Data []*models.CommunityBasic `json:"data"`
+}
+
+type SwaggerCommunityDetailResponse struct {
+	Code ResponseCode            `json:"code"`
+	Msg  string                  `json:"msg"`
+	Data *models.CommunityDetail `json:"data"`
+}
+
+type SwaggerPostListResponse struct {
+	Code ResponseCode         `json:"code"`
+	Msg  string               `json:"msg"`
+	Data []*models.PostDetail `json:"data"`
+}
+
+type SwaggerPostDetailResponse struct {
+	Code ResponseCode       `json:"code"`
+	Msg  string             `json:"msg"`
+	Data *models.PostDetail `json:"data"`
 }
 
 func RespondSuccess(c *gin.Context, data any) {
