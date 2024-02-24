@@ -1,15 +1,21 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
+	"os"
+	"os/signal"
 	"raddit/config"
 	"raddit/dao/mysql"
 	"raddit/dao/redisdb"
 	"raddit/logger"
 	"raddit/pkg/snowflake"
 	"raddit/routes"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -49,6 +55,18 @@ func main() {
 			panic(err)
 		}
 	}()
-	quit := make(chan bool)
+	// 6. graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+	fmt.Println("shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = server.Shutdown(ctx)
+	if err != nil {
+		zap.L().Fatal("server shutdown error", zap.Error(err))
+	}
+	fmt.Println("server exit")
 }
