@@ -115,3 +115,19 @@ func InsertPost(p *models.Post) {
 	}
 	rdb.LPush(ctx, KeyPostList, data)
 }
+
+func GetPostList(page, size int) ([]*models.Post, error) {
+	start := int64((page - 1) * size)
+	stop := start + int64(size) - 1
+	postsData, err := rdb.LRange(ctx, KeyPostList, start, stop).Result()
+	if err != nil {
+		return nil, err
+	}
+	posts := make([]*models.Post, len(postsData))
+	for i, data := range postsData {
+		var post models.Post
+		_ = json.Unmarshal([]byte(data), &post)
+		posts[i] = &post
+	}
+	return posts, nil
+}

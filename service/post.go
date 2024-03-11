@@ -52,15 +52,19 @@ func GetPostDetail(id int64) (*models.PostDetail, error) {
 }
 
 func GetPostList(page, size int) ([]*models.PostDetail, error) {
-	posts, err := mysql.GetPostList(page, size)
+	posts, err := redisdb.GetPostList(page, size)
 	if err != nil {
-		zap.L().Error("get post list in GetPostDetailList() error", zap.Error(err))
+		zap.L().Error("get post list in redis in GetPostDetailList() error", zap.Error(err))
+	}
+	posts, err = mysql.GetPostList(page, size)
+	if err != nil {
+		zap.L().Error("get post list in mysql in GetPostDetailList() error", zap.Error(err))
 		return nil, err
 	}
-	postDetails := make([]*models.PostDetail, 0, len(posts))
-	for _, post := range posts {
+	postDetails := make([]*models.PostDetail, len(posts))
+	for i, post := range posts {
 		postDetail := completePostInfo(post)
-		postDetails = append(postDetails, postDetail)
+		postDetails[i] = postDetail
 	}
 	return postDetails, nil
 }
