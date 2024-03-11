@@ -21,6 +21,7 @@ func CreatePost(post *models.Post) error {
 	postTime := float64(post.CreateTime.Unix())
 	communityID := strconv.Itoa(int(post.CommunityID))
 	err = redisdb.CreatePostData(postID, communityID, postTime)
+	go redisdb.InsertPost(post)
 	return err
 }
 

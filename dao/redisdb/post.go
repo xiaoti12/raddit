@@ -1,6 +1,7 @@
 package redisdb
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
@@ -105,4 +106,12 @@ func GetPostVoteData(ids []string) ([]int64, error) {
 		voteCounts = append(voteCounts, count)
 	}
 	return voteCounts, nil
+}
+
+func InsertPost(p *models.Post) {
+	data, err := json.Marshal(p)
+	if err != nil {
+		return
+	}
+	rdb.LPush(ctx, KeyPostList, data)
 }
