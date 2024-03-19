@@ -34,7 +34,7 @@ func SetRouteEngine(mode string) *gin.Engine {
 	v.Use(middlewares.JWTAuthMiddleware())
 	{
 		v.GET("/home", func(c *gin.Context) {
-			username := c.MustGet("username").(string)
+			username := c.MustGet(controller.CtxUserName).(string)
 			c.JSON(http.StatusOK, gin.H{
 				"code": controller.CodeSuccess,
 				"msg":  controller.CodeSuccess.Msg(),
