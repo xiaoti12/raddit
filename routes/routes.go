@@ -35,20 +35,20 @@ func SetRouteEngine(mode string) *gin.Engine {
 	{
 		v.GET("/home", func(c *gin.Context) {
 			username := c.MustGet(controller.CtxUserName).(string)
-			c.JSON(http.StatusOK, gin.H{
-				"code": controller.CodeSuccess,
-				"msg":  controller.CodeSuccess.Msg(),
-				"data": gin.H{"username": username},
-			})
+			controller.RespondSuccess(c, gin.H{"username": username})
 		})
 		v.GET("/list/community", controller.CommunityListHandler)
-		v.GET("/community/:id", controller.CommunityDetailHandler)
 
-		v.POST("/create/post", controller.CreatePostHandler)
 		v.GET("/post/:id", controller.GetPostDetailHandler)
-		v.GET("/list/post", controller.GetPostListHandler)
 		v.POST("/vote", controller.VotePostHandler)
-		v.GET("/list/post/order", controller.GetOrderedPostListHandler)
+
+		v.Use(middlewares.RateLimitMiddleware())
+		{
+			v.GET("/community/:id", controller.CommunityDetailHandler)
+			v.POST("/create/post", controller.CreatePostHandler)
+			v.GET("/list/post", controller.GetPostListHandler)
+			v.GET("/list/post/order", controller.GetOrderedPostListHandler)
+		}
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
